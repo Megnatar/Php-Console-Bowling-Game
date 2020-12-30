@@ -13,6 +13,10 @@ class BowlingGame
     public function __construct()
     {
         $this->console = new Console();
+        $this->console->stdInput(1);
+        $this->console->echoInput(" Bowling Game ", "*", 20);
+        $this->console->echoInput("  by: Joz Severijnse™️\n");
+        $this->console->getInpunt("\n\nPress enter to begin adding users to the game.");
         $this->askPlayerNames();
     }
 
@@ -23,11 +27,17 @@ class BowlingGame
     {
         $this->console->stdInput(1);
 
-        $playerName = $this->console->getInpunt("Hello, please tell me you're name: ");
+        while (trim($playerName = $this->console->getInpunt("Hello, please tell me you're name: ")) == "") {
+            $this->console->echoInput("Empty names are not allowed!\n\n");
+        }
         $this->addPlayer($playerName);
 
-        while (trim($this->console->getInpunt("Would you like to add more players? y/n: ")) == "y") {
-            $playerName = $this->console->getInpunt("Hello, please tell me you're name: ");
+        while (trim($this->console->getInpunt("Would you like to add more players? y/n: ")) === "y") {
+            $this->console->stdInput(1);
+
+            while (trim($playerName = $this->console->getInpunt("Hello, please tell me you're name: ")) == "") {
+                $this->console->echoInput("Empty names are not allowed!\n\n");
+            }
             $this->addPlayer($playerName);
         }
         // Create scoreboard object.
@@ -58,6 +68,15 @@ class BowlingGame
      */
     public function start()
     {
+        $playerList = "";
+        $this->console->stdInput(1);
+        $this->console->echoInput(" Welcome to the bowling game", "*", 15);
+
+        foreach ($this->players as $player) {
+            $playerList .= " Name: " . $player->name . "\n";
+        }
+        $this->console->echoInput("\n Players for this game are: \n$playerList");
+        $this->console->getInpunt("\nPress enter to start the game!");
         $this->playAllRounds();
     }
 
@@ -97,7 +116,7 @@ class BowlingGame
             $strike = 1;
         }
         // If ball2 is greater then zero. Then no strike occurred in this round. And when the value of ball1+ball2 is 10. Then the player earned a spare.
-        if (($balls["ball2"] > 0) && ($balls["ball1"] + $balls["ball2"]) == 10) {
+        if (($balls["ball2"] > 0) && ($balls["ball1"] + $balls["ball2"]) === 10) {
             $this->console->echoInput("Spare with ball one!\n\n");
             $spare = 1;
         }
@@ -109,7 +128,7 @@ class BowlingGame
 
         // Check in the 10th round, if there was a strike/spare in round 9 or 10. Let players, play there extra rounds.
         if ($round == 10) {
-            if ($player->pinsThrown[($round - 1)]["strike"] == 1 || $player->pinsThrown[$round]["spare"] == 1) {
+            if ($player->pinsThrown[($round - 1)]["strike"] === 1 || $player->pinsThrown[$round]["spare"] === 1) {
                 $this->playLastRound($player, 1);
             }
             if ($strike == 1) {
@@ -128,14 +147,15 @@ class BowlingGame
 
         for ($i = 1; $i <= 2; $i++) {
             $pinsDown = $this->getPinsDown($balls["ball1"]);
-            $this->console->echoInput(($balls["ball1"] == -1 ? "First" : "Second")
-                . " ball knocked down " . $pinsDown . ($pinsDown == 1 ? " pin" : " pins") . "\n");
+            $this->console->echoInput("You're " . ($balls["ball1"] === -1 ? "first" : "second") . " ball knocked down " . $pinsDown . ($pinsDown === 1 ? " pin" : " pins") . "\n");
 
-            while ($this->console->getInpunt("Please fill in you're score: ") != $pinsDown) {
-                $this->console->echoInput("\nINCORRECT NUMBER!\nTotal pins knocked over: " . $pinsDown . "\n");
+            if ($balls["ball1"] !== 10) {
+                while ($this->console->getInpunt("Please fill in you're score: ") != $pinsDown) {
+                    $this->console->echoInput("\nINCORRECT NUMBER!\n\nTotal pins knocked over: " . $pinsDown . "\n");
+                }
+                $this->console->echoInput("\n");
+                $balls["ball" . $i] = $pinsDown;
             }
-            $this->console->echoInput("\n");
-            $balls["ball" . $i] = $pinsDown;
         }
         $player->balls = $balls;
         return $balls;
@@ -147,7 +167,7 @@ class BowlingGame
      */
     private function getPinsDown($pinsLeft)
     {
-        return $pinsLeft == -1 ? mt_rand(0, 10) : mt_rand(0, (10 - $pinsLeft));
+        return $pinsLeft === -1 ? mt_rand(0, 10) : mt_rand(0, (10 - $pinsLeft));
     }
 
     /**
@@ -158,14 +178,11 @@ class BowlingGame
     private function playLastRound($player, $roundsToPlay)
     {
         // Let the player play, either one or two extra rounds.
-        for ($n = 1; $n <= ($roundsToPlay == 1 ? 1 : 2); $n++) {
-            $player->round += 1;
+        for ($n = 1; $n <= ($roundsToPlay === 1 ? 1 : 2); $n++) {
+            $player->round++;
+            $this->console->echoInput(" Play BONUS rounds ", "*", 20);
             $balls = $this->playBalls($player);
-
-            // Call method throwPins() from player object.
             $player->thrownPins($balls["ball1"], $balls["ball2"], $player->round);
-
-            // Call method calculatePlayerScore() in the scoreBoard object.
             $this->scoreBoard->calculatePlayerScore($player);
         }
     }
