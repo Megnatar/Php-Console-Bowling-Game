@@ -119,26 +119,6 @@ class BowlingGame
     }
 
     /**
-     * @param object $player The name of the player.
-     * @param integer $roundsToPlay The number of extra rounds to play.
-     * Let the player play round 11 or 12. Depending on whatever they scored a strike/spare in round 9 or 10.
-     */
-    private function playLastRound($player, $roundsToPlay)
-    {
-        // Let the player play, either one or two extra rounds.
-        for ($n = 1; $n <= ($roundsToPlay == 1 ? 1 : 2); $n++) {
-            $player->round += 1;
-            $balls = $this->playBalls($player);
-
-            // Call method throwPins() from player object.
-            $player->thrownPins($balls["ball1"], $balls["ball2"], $player->round);
-
-            // Call method calculatePlayerScore() in the scoreBoard object.
-            $this->scoreBoard->calculatePlayerScore($player);
-        }
-    }
-
-    /**
      * private function playBalls($player)
      * @param object $player
      */
@@ -168,5 +148,25 @@ class BowlingGame
     private function getPinsDown($pinsLeft)
     {
         return $pinsLeft == -1 ? mt_rand(0, 10) : mt_rand(0, (10 - $pinsLeft));
+    }
+
+    /**
+     * @param object $player The name of the player.
+     * @param integer $roundsToPlay The number of extra rounds to play.
+     * Let the player play round 11 or 12. Depending on whatever they scored a strike/spare in round 9 or 10.
+     */
+    private function playLastRound($player, $roundsToPlay)
+    {
+        // Let the player play, either one or two extra rounds.
+        for ($n = 1; $n <= ($roundsToPlay == 1 ? 1 : 2); $n++) {
+            $player->round += 1;
+            $balls = $this->playBalls($player);
+
+            // Call method throwPins() from player object.
+            $player->thrownPins($balls["ball1"], $balls["ball2"], $player->round);
+
+            // Call method calculatePlayerScore() in the scoreBoard object.
+            $this->scoreBoard->calculatePlayerScore($player);
+        }
     }
 }
