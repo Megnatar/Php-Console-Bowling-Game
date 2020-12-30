@@ -106,7 +106,8 @@ class BowlingGame
         $strike = 0;
         $spare = 0;
 
-        $this->console->echoInput("Player: $player->name \tRound: $round \n\n");
+        $this->console->echoInput(" Round: $round ", "*", 20);
+        $this->console->echoInput("Player: $player->name \n\n");
         $this->playBalls($player);
         $balls = $player->balls;
 
